@@ -1,29 +1,51 @@
 from src.environments.environmentSetter import SetAndReturnEnvironment
 from src.config.runnerConfig import MAX_TRAINING_TRIALS
 from tqdm import tqdm
+from src.algos.qlearning import QLearning
+import logging, sys
 
-def Run(algo):
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+
+def run(algoName):
     myEnv = SetAndReturnEnvironment()
     episodic_reward = 0
     max_reward = float('-inf')
 
+    algo = None
+    if algoName == 'qlearning':
+        algo = QLearning(myEnv)
+    # TODO other algos
+
     for episode in tqdm(range(MAX_TRAINING_TRIALS), desc='Running training trials'):
         done = False
-        myEnv.reset()
+        currentState = myEnv.reset()
         episodic_reward = 0
         while not done:
             myEnv.render()
-            obs, reward, done, info = myEnv.step(GetActionForAlgo(algo, myEnv))
+            action = getActionForAlgo(algo, myEnv, currentState)
+            nextState, reward, done, info = executeActionForAlgo(algo, myEnv, currentState, action)
+            currentState = nextState
             episodic_reward += reward
-        print('\nEpisode {} resulted in {} reward'.format(episode, episodic_reward))
+        #logging.debug('Episode {} resulted in {} reward'.format(episode, episodic_reward))
         if episodic_reward > max_reward:
             max_reward = episodic_reward
-            print('\nNew max reward achieved: {}'.format(max_reward))
+            #logging.debug('New max reward achieved: {}'.format(max_reward))
 
+    logging.info('Max reward achieved: {}'.format(max_reward))
     myEnv.close()
 
-def GetActionForAlgo(algo, myEnv):
+def getActionForAlgo(algo, myEnv, currentState):
     # Default random agent taking a random action
-    action = myEnv.action_space.sample()
-    # TBD other algos
+    if not algo:
+        action = myEnv.action_space.sample()
+        #logging.debug('Not using any particular algorithm, choosing action {} at random'.format(action))
+    else:
+        action = algo.getAction(myEnv, currentState)
+        #logging.debug('Action return by algo object: {}'.format(action))
     return action
+
+def executeActionForAlgo(algo, myEnv, currentState, action):
+    if not algo:
+        return myEnv.step(action)
+    else:
+        return algo.executeAction(myEnv, currentState, action)
