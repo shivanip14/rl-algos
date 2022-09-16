@@ -31,7 +31,7 @@ def run(algoName):
             max_reward = episodic_reward
             #logging.debug('New max reward achieved: {}'.format(max_reward))
 
-    logging.info('Max reward achieved: {}'.format(max_reward))
+    logging.info('Max reward achieved in training: {}'.format(max_reward))
     myEnv.close()
 
 def getActionForAlgo(algo, myEnv, currentState):

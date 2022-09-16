@@ -15,14 +15,14 @@ class QLearning:
         self.num_of_actions = myEnv.action_space.n
 
         # Discretise states
+        # TODO not to discretise if they're already Discrete
         self.bins = discretiseStatesAndReturnBins(myEnv)
         self.per_state_size = myEnv.observation_space.shape[0]
         self.Q_table = np.zeros([NO_OF_BINS] * self.per_state_size + [self.num_of_actions]) # WOHOOOOOO!
 
         logging.info('Q-Table shape [{}]'.format(self.Q_table.shape))
-        logging.info('Q-table non-zero entries at indices: {}'.format(np.nonzero(self.Q_table)))
         self.epsilon = 0.05
-        self.alpha = 0.1
+        self.alpha = 0.15
         self.gamma = 0.95
 
     def getAction(self, myEnv, currentState):
@@ -48,7 +48,6 @@ class QLearning:
 
     def resetAgent(self, myEnv):
         myEnv.reset()
-        self.Q_table = np.zeros([NO_OF_BINS] * self.per_state_size + [self.num_of_actions])
 
     def getQTable(self):
         return self.Q_table
