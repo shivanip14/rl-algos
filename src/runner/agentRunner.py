@@ -2,6 +2,7 @@ from src.environments.environmentSetter import SetAndReturnEnvironment
 from src.config.runnerConfig import MAX_TRAINING_TRIALS
 from tqdm import tqdm
 from src.algos.qlearning import QLearning
+from src.algos.dynaqlearning import DynaQLearning
 import logging, sys
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
@@ -12,8 +13,13 @@ def run(algoName):
     max_reward = float('-inf')
 
     algo = None
+    tabular = False
     if algoName == 'qlearning':
         algo = QLearning(myEnv)
+        tabular = True
+    elif algoName == 'dynaq':
+        algo = DynaQLearning(myEnv)
+        tabular = True
     # TODO other algos
 
     for episode in tqdm(range(MAX_TRAINING_TRIALS), desc='Running training trials'):
